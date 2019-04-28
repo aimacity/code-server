@@ -256,7 +256,7 @@ export class WindowsService implements IWindowsService {
 	}
 
 	public relaunch(_options: { addArgs?: string[], removeArgs?: string[] }): Promise<void> {
-		throw new Error("not implemented");
+		location.reload();
 	}
 
 	// macOS Native Tabs
