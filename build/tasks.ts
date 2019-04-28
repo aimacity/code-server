@@ -172,10 +172,6 @@ const ensurePatched = register("vscode:patch", async (runner) => {
 	if (apply.exitCode !== 0) {
 		throw new Error(`Failed to apply patches: ${apply.stderr}`);
 	}
-	const nlsPath = path.join(__dirname, "../scripts/nls.js");
-	const destPath = path.join(vscodePath, "src/vs/nls.js");
-	fse.copySync(nlsPath, destPath);
-
 });
 
 register("package", async (runner, releaseTag) => {

@@ -16,33 +16,11 @@
 'use strict';
 var NLSLoaderPlugin;
 (function (NLSLoaderPlugin) {
-    var loadI18n = function(locale){
-        var msgs = {};
-        try {
-            var json = require("../../../i18n/"+locale+"/main.i18n.json");
-            // console.log(json);
-          
-         for(var p in json.contents)   {
-             var sub = json.contents[p];
-             if(sub){
-                 for(var key in sub){
-                    msgs[key] = sub[key];
-                 }
-             }
-         }
-         return msgs;
-        } catch (e) {
-             // console.error('load zh-cn i 18 failed');
-            return msgs;
-        }
-    };
     var Environment = /** @class */ (function () {
         function Environment() {
             this._detected = false;
             this._isPseudo = false;
-            this.messages = {
-                "zh-cn" :loadI18n("zh-cn")
-            };
+            this.messages = {};
         }
         Object.defineProperty(Environment.prototype, "isPseudo", {
             get: function () {
@@ -132,6 +110,9 @@ var NLSLoaderPlugin;
         NLSPlugin.prototype.setPseudoTranslation = function (value) {
             this._env._isPseudo = value;
         };
+        NLSPlugin.prototype.addLocale = function(key,data){
+            this._env.messages[key] = data;
+        }
         NLSPlugin.prototype.create = function (key, data) {
             return {
                 localize: createScopedLocalize(data[key], this._env)

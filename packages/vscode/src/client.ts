@@ -14,9 +14,7 @@ import { ITextFileService } from "vs/workbench/services/textfile/common/textfile
 import { IModelService } from "vs/editor/common/services/modelService";
 import { ITerminalService } from "vs/workbench/contrib/terminal/common/terminal";
 import { IStorageService } from "vs/platform/storage/common/storage";
-import { readFile, writeFile } from "fs";
-import { promisify } from "util";
-
+import { lp } from "./fill/i18n";
 // NOTE: shouldn't import anything from VS Code here or anything that will
 // depend on a synchronous fill like `os`.
 
@@ -27,19 +25,8 @@ class VSClient extends IdeClient {
 			logger.info(JSON.stringify(sharedData));
 			paths._paths.initialize(data, sharedData);
 			product.initialize(data);
-			const file = paths._paths.appData + "/User" + "/locale.json";
-			// console.log(file);
-			logger.info("try to load locale setting with path:" + file);
-			try{
-				const contents = await promisify(readFile)(file, "utf8");
-				const json = JSON.parse(contents);
-				if(json && json.locale){
-					localStorage.setItem("locale",json.locale);
-				}
-			} catch(e) {
-				logger.error(e);
-			}
 			process.env.SHELL = data.shell;
+			await lp.initialize();
 			// At this point everything should be filled, including `os`. `os` also
 			// relies on `initData` but it listens first so it initialize before this
 			// callback, meaning we are safe to include everything from VS Code now.
