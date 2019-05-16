@@ -7,8 +7,7 @@ import * as nls from "vs/nls";
  * class for client i18n
  */
 class LanguagePack {
-    private readonly config: { dataDir: string};
-    /**
+     /**
      * read locale.json
      */
     private async readLocale(): Promise<string> {
@@ -32,6 +31,15 @@ class LanguagePack {
             }
             return "";
     }
+    public async  initLocale(locale): void{
+        process.env["VSCODE_NLS_CONFIG"] ="{}";
+        localStorage.removeItem("VSCODE_NLS_CONFIG");
+        const messages =await this.loadI18n(locale);
+        if(messages ) {
+            (nls as any).addLocale(locale,messages);
+            localStorage.setItem(locale,JSON.stringify(messages));
+        }
+    }
     /**
      * init i18n for web client
      */
@@ -40,15 +48,17 @@ class LanguagePack {
         logger.info("use locale:" + locale);
         if(locale) {
             const msgs = localStorage.getItem(locale);
-            if (msgs) {
+            const nslCfg =  localStorage.getItem("VSCODE_NLS_CONFIG");
+            if (msgs&&nslCfg) {
+               const nlsJson = JSON.parse(nslCfg);
+               if(nlsJson.locale ===locale ){
                 logger.info("use cached locale:" + locale);
                 (nls as any).addLocale(locale,JSON.parse(msgs));
+               } else {
+                await this.initLocale(locale);
+               }
             } else {
-                const messages =await this.loadI18n(locale);
-                if(messages ) {
-                    (nls as any).addLocale(locale,messages);
-                    localStorage.setItem(locale,JSON.stringify(messages));
-                }
+                await this.initLocale(locale);
             }
         }
     }
@@ -67,6 +77,14 @@ class LanguagePack {
         try {
            const cfg = await this.readPack(locale);
            if(cfg&&cfg[locale]&&cfg[locale]["translations"]) {
+          const  packConfig = cfg[locale] ;
+          const lp = require ("./languagepack");
+          const metaDataFile = paths._paths.appData + "/nls.metadata.json";
+          const nsconfig = await  lp.getNLSConfiguration("999999", paths._paths.appData, metaDataFile, locale,cfg);
+           process.env["VSCODE_NLS_CONFIG"] = JSON.stringify(nsconfig);
+           localStorage.setItem("VSCODE_NLS_CONFIG",JSON.stringify(nsconfig));
+          logger.info(JSON.stringify(process.env));
+
                const mainFile = cfg[locale]["translations"]["vscode"];
                const content = await promisify(readFile)(mainFile, "utf8");
                const data = JSON.parse(content);

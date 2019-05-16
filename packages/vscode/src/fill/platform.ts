@@ -12,6 +12,13 @@ if (platform.locale === "en-US") {
 if (platform.language === "en-US") {
 	(platform as any).language = "en";
 }
+let cfg = localStorage.VSCODE_NLS_CONFIG;
+if (cfg) {
+	let nsConfig  =	JSON.parse(cfg);
+	(platform as any).locale = nsConfig.locale;
+	(platform as any).language = nsConfig.locale;
+	(platform as any).translationsConfigFile =nsConfig._translationsConfigFile;
+}
 
 // Use the server's platform instead of the client's. For example, this affects
 // how VS Code handles paths (and more) because different platforms give
