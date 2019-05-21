@@ -96,7 +96,6 @@ var NLSLoaderPlugin;
                     var locale = localStorage.getItem('locale');
                     if(locale&&env.messages[locale]) {
                         var obj =env.messages[locale];
-                        // console.log(data);
                         message = obj[data.key||data] || message;
                     }
                 }
